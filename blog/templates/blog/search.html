@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Search {% endblock %}
+
+{% block content %}
+
+{% for search_article in search_articles %}
+<div class="card mb-3" >
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="{{ search_article.image.url }}" class="img-fluid rounded" alt="...">
+      </div>
+      <div class="col-md-8">
+        <a href="{% url 'article' search_article.category.slug search_article.slug %}" style="text-decoration: none; color:#000;"><div class="card-body">
+          <h5 class="card-title">{{ search_article.title }}</h5>
+          <p class="card-text">{{ search_article.body|safe |truncatewords:20 }}</p>
+          <p class="card-text"><small class="text-muted">Last updated {{ search_article.created_at |timesince }}</small></p>
+        </div></a>
+      </div>
+    </div>
+</div>
+{% empty %}
+<div >
+  <p>No results match your query!!</p>
+</div>
+{% endfor %}
+
+{% endblock %}

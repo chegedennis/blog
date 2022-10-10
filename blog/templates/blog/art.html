@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Article {% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1rem;" >
+    <div class="card-body">
+        <h5 class="card-title">{{ article.title }}</h5>
+        <p class="card-text"><small class="text-muted">Last updated {{ article.created_at |timesince }}</small></p>
+        {% if article.image %}
+        <img src="{{ article.image.url }}" class="img-fluid rounded-start" style="margin-top: 1rem;"  alt="...">
+        {% endif %}
+        <p class="card-text">{{ article.body }}</p>
+    </div>
+</div>
+<div class="card mb-3">
+  {% if related_articles %}
+  <div class="card-header " style="margin-bottom: .4rem;"><h5>You may like these posts</h5></div>
+  {% for related_article in related_articles %}
+    <div class="card mb-3" style="border: none;" >
+      <a href="{% url 'article' related_article.category.slug related_article.slug%}" style="text-decoration: none; color:#000;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{ related_article.image.url }}" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{{ related_article.title }}</h5>
+                <p class="card-text">{{ related_article.body |truncatewords:20 }}</p>
+                <p class="card-text"><small class="text-muted">Last Updated: {{ related_article.created_at | timesince }}</small></p>
+              </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="card  mb-3">
+    <div class="card-header bg-primary">
+        <h5 class="text-center mb-1">
+          Post a Comment
+        </h5>
+    </div>
+    {% if comments %}
+    {% for comment in comments %}
+    <div class="comment-section">
+      <div class="container mb-2 mt-2">
+        <div class="comment-card">
+           <div class="row">
+               <div class="col-md-12">
+                   <div class="row">
+                       <div class="col-md-12">
+                           <div class="media">
+                               <img class="mr-3 rounded-circle" alt="Bootstrap Media Preview" src="https://i.imgur.com/stD0Q19.jpg" />
+                               <div class="media-body">
+                                   <div class="row">
+                                      <div class="col-8 d-flex">
+                                        <h5>{{ comment.author }}</h5>
+                                        <span>- {{ comment.created_at | timesince }}</span>
+                                      </div>
+                                      <div class="col-4"><div class="pull-right reply"></div></div>
+                                   </div>		                                
+                                          {{ comment.body }} 
+                                          <a href="#{{ comment.id }}" data-toggle="collapse"  aria-expanded="false" aria-controls="#reply-form"  style="float: right;"><span> reply</span></a>
+                                      
+                                          <form action="" method="post" class="collapse" id="{{ comment.id }}">
+                                            {{ comment_form.as_p }}
+                                            {% csrf_token %}
+                                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                            <input class="btn btn-primary" type="submit" value="Reply">
+                                          </form>
+                                  
+                                   {% for reply in comment.replies.all %}
+                                      <div class="media mt-3">
+                                          <a class="pr-3" href="#"><img class="rounded-circle" alt="Bootstrap Media Another Preview" src="https://i.imgur.com/nAcoHRf.jpg" /></a>
+                                          <div class="media-body">
+                                            <div class="row">
+                                              <div class="col-12 d-flex">
+                                                <h5>{{ reply.author }}</h5>
+                                                <span>- {{ reply.created_at }}</span>
+                                              </div>
+                                            </div>
+                                            {{ reply.body }} 
+                                            <a href="#{{ reply.id }}" data-toggle="collapse" aria-expanded="false" aria-controls="#reply-form"  style="float: right;"><span> reply</span></a>
+                                      
+                                              <form action="" method="post" class="collapse" id="{{ reply.id }}">
+                                                {{ comment_form.as_p }}
+                                                {% csrf_token %}
+                                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                                <input class="btn btn-primary" type="submit" value="Reply">
+                                              </form>
+                                               
+                                          </div>
+                                    
+                                      </div>
+                                  {% endfor %}
+                               </div>
+                           </div>
+                           
+                       </div>
+                   </div>
+               </div>
+           </div>
+           </div>
+       </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  <div class="card-body" style="padding: 1rem;">
+    <h2>Add a new comment</h2>
+    <form action="" method="post">
+        {{ comment_form.as_p }}
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" style="margin-top: .5rem; width:60%;">Add comment</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'core/base.html' %}
+
+
+{% block content %}
+{% block title %} Article {% endblock %}
+
+{% load socialaccount %}
+{% get_providers as socialaccount_providers %}
+
+
+
+<div class="card" style="margin-bottom: 1rem;" >
+    <div class="card-body">
+        <h4 class="card-title">{{ article.title }}</h4>
+        <p class="card-text"><small class="text-muted">Last updated {{ article.created_at |date }}</small></p>
+        {% if article.image %}
+        <img src="{{ article.image.url }}" class="img-fluid rounded" style="margin-top: 1rem;"  alt="...">
+        {% endif %}
+        <p class="card-text">{{ article.body| safe }}</p>
+    </div>
+</div>
+<div class="card mb-3">
+  {% if related_articles %}
+  <div class="card-header " style="margin-bottom: .4rem;"><h5>You may like these posts</h5></div>
+  {% for related_article in related_articles %}
+    <div class="card mb-3" style="border: none;" >
+      <a href="{% url 'article' related_article.category.slug related_article.slug%}" style="text-decoration: none; color:#000;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{ related_article.image.url }}" class="img-fluid rounded" alt="...">
+          </div>
+          <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{{ related_article.title }}</h5>
+                <p class="card-text">{{ related_article.body|safe |truncatewords:20 }}</p>
+                <p class="card-text"><small class="text-muted">Last Updated: {{ related_article.created_at | date }}</small></p>
+              </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="card  mb-3">
+    <div class="card-header text-center mb-1 bg-primary text-light ">
+        <h5>
+          Post a Comment
+        </h5>
+    </div>
+    {% if comments %}
+    {% for comment in comments %}
+    <div class="comment-section">
+      <div class="container mb-2 mt-2">
+        <div class="comment-card">
+           <div class="row">
+               <div class="col-md-12">
+                   <div class="row">
+                       <div class="col-md-12">
+                           <div class="media">
+                               <img class="mr-3 rounded-circle" alt="Bootstrap Media Preview" src="//www.blogger.com/img/blogger_logo_round_35.png" />
+                               <div class="media-body">
+                                   <div class="row">
+                                      <div class="col-8 d-flex">
+                                        <h5>{{ comment.author }}</h5>
+                                        <span>- {{ comment.created_at | date }}</span>
+                                      </div>
+                                      <div class="col-4"><div class="pull-right reply"></div></div>
+                                   </div>		                                
+                                          {{ comment.body }} 
+                                          {% if user.is_authenticated %}
+                                          <a href="#{{ comment.id }}" data-toggle="collapse"  aria-expanded="false" aria-controls="#reply-form"  style="float: right;"><span> reply</span></a>
+                                          <form action="" method="post" class="collapse" id="{{ comment.id }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="author" value="{{ user.first_name }}">
+                                            <input type="hidden" name="email" value="{{ user.email }}"><br>
+                                            {{ comment_form.body }}
+                                            <input type="hidden" name="parent_id" value="{{ comment.id }}"><br>
+                                            <input class="btn btn-primary" type="submit" value="Reply">
+                                          </form>
+                                          {% endif %}
+                                  
+                                   {% for reply in comment.replies.all %}
+                                      <div class="media mt-3">
+                                          <a class="pr-3" href="#"><img class="rounded-circle" alt="Bootstrap Media Another Preview" src="//www.blogger.com/img/blogger_logo_round_35.png" /></a>
+                                          <div class="media-body">
+                                            <div class="row">
+                                              <div class="col-12 d-flex">
+                                                <h5>{{ reply.author }}</h5>
+                                                <span>- {{ reply.created_at|date }}</span>
+                                              </div>
+                                            </div>
+                                            {{ reply.body }} 
+                                            {% if user.is_authenticated %}
+                                            <a href="#{{ reply.id }}" data-toggle="collapse" aria-expanded="false" aria-controls="#reply-form"  style="float: right;"><span> reply</span></a>
+                                              <form action="" method="post" class="collapse" id="{{ reply.id }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="author" value="{{ user.first_name }}">
+                                                <input type="hidden" name="email" value="{{ user.email }}"><br>
+                                                {{ comment_form.body }}
+                                                <input type="hidden" name="parent_id" value="{{ comment.id }}"> <br>
+                                                <input class="btn btn-primary" type="submit" value="Reply">
+                                              </form>
+                                              {%endif%}
+                                               
+                                          </div>
+                                    
+                                      </div>
+                                  {% endfor %}
+                               </div>
+                           </div>
+                           
+                       </div>
+                   </div>
+               </div>
+           </div>
+           </div>
+       </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  <div class="card-body" style="padding: 1rem;">
+    {% if not user.is_authenticated %}
+    <p>To leave a comment, click the button below to sign in with Google.</p>
+        <!-- <form method="post" action="">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">SIGN IN WITH GOOGLE</button>
+    </form> -->
+
+    {% for provider in socialaccount_providers %} 
+
+    <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
+    href="{% provider_login_url provider.id process='login' scope=scope auth_params=auth_params %}"><button type="submit" class="btn btn-primary">SIGN IN WITH GOOGLE</button></a>
+
+    {% endfor %}
+    {% else %}
+    <h2>Add a new comment</h2>
+    <form action="" method="post">
+      {% csrf_token %}
+        <input type="hidden" name="author" value="{{ user.first_name }}">
+        <input type="hidden" name="email" value="{{ user.email }}"><br>
+        {{ comment_form.body }}
+        <button type="submit" class="btn btn-primary" style="margin-top: .5rem; width:60%;">Add comment</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+

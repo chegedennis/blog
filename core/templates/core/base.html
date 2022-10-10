@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Codesville | {% block title %}{% endblock %}
+    </title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <!-- and it's easy to individually load additional languages -->
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300&display=swap');
+      .comment-section {
+        display: grid;
+        place-items: center;
+        font-family: 'Source Sans Pro', sans-serif;
+    }
+      .comment-card {
+        position: relative;
+        display: flex;
+        padding:.5rem;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+    }
+   
+   .media img{
+         
+       width: 60px;
+       height: 60px;
+   }
+   
+   
+   .reply a {
+       
+       text-decoration: none;
+   }
+    </style>
+</head>
+<body class="text-bg-light">
+    <div class="container "  style="justify-content: center;">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/">Codesville</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Categories
+                    </a>
+                    <ul class="dropdown-menu">
+                      {% for category in categories %}  
+                      <li><a class="dropdown-item" href="{% url 'category' category.slug %}">{{ category }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                  
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'privacy_policy' %}">Privacy Policy</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'cookies_policy' %}">Cookies Policy</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'disclaimer' %}">Disclaimer</a>
+                  </li>
+                  <!-- <li class="nav-item">
+                    <a class="nav-link" href="{% url 'sitemap' %}">Sitemap</a>
+                  </li> -->
+                </ul>
+                <form class="d-flex" role="search" action="{% url 'search' %}">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+              </div>
+            </div>
+        </nav>
+        <div class="row d-flex" style="margin-top: 2rem;">
+            <div class="col-lg-8">
+        {% block content %}
+
+        {% endblock %}        
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card mb-3" style="border: none;" >
+                        <div class="card-header bg-primary text-center text-light" style="margin-bottom: .4rem;">Popular Posts</div>
+                        {% for popular_article in popular_articles %}
+                        <a href="{% url 'article' popular_article.category.slug popular_article.slug %}" style="text-decoration: none; color:#000;">
+                          <div class="row g-0">
+                            <div class="col-md-8 ">
+                              <img src="{{ popular_article.image.url }}" class="img-fluid rounded" alt="..." style="height: 80%;">
+                            </div>
+                            <div class="col-md-4">
+                              <div class="card-body">
+                                <h5 class="card-title">{{ popular_article.title |truncatewords:5 }}</h5>
+                                <p class="card-text">{{ popular_article.body|safe |truncatewords:10 }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card  mb-3">
+                  <div class="card-header text-center bg-primary text-light">Youtube</div>
+                  <div class="card-body">
+                    <h5 class="card-title">Codesville On Youtube</h5>
+                    <p class="card-text"><a href="https://www.youtube.com/channel/UCJOGhk539RhUpieE14lzwBA" target="_blank">Click to view content on Youtube</a></p>
+                  </div>
+                </div>
+                <div class="card  mb-3">
+                    <div class="card-header text-center bg-primary text-light">Tags</div>
+                    <div class="card-body">
+                      <p class="card-text">Python, Django, Javascript</p>
+                    </div>
+                  </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="section border border-light" style="background-color: #fff;">
+      <div class="container">
+        <div class="row d-flex" style="padding-top: 2rem;" >
+          <div class="col-lg-4">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Signup To My Newsletter</h5>
+                <p class="card-text">By subscribing, you will get one email every month on tips, tutorials, and resources to improve your skills as a developer. You will get early access to my courses and videos and also access to special bonus of the time. No spam, unsubscribe at any time</p>
+                <label for="email">Email address</label><br>
+                <input type="email" name="email" id="email" style="width: 90%;"><br>
+                <label for="name">First Name</label><br>
+                <input type="text" name="name" id="name" style="width: 90%;"><br>
+                <a href="#" class="btn btn-primary" style="margin-top: .5rem;">Subscribe</a>
+              </div>
+          </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card mb-3" style="border: none;" >
+                    <div class="card-header mb-1 text-center bg-dark text-light">Most Recent</div>
+                    <a href="{% url 'article' recent_article.category.slug recent_article.slug %}" style="text-decoration: none; color:#000;">
+                      <div class="row g-0">
+                        <div class="col-md-8">
+                          <img src="{{ recent_article.image.url }}" class="img-fluid rounded" alt="..." style="height: 100%;">
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card-body">
+                            <h5 class="card-title">{{ recent_article.title | truncatewords:5 }}</h5>
+                            <p class="card-text">{{ recent_article.body | safe |truncatewords:10 }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                </div>
+          </div>
+          </div>
+          {% include 'core/contact.html' %}
+        </div>
+      </div>
+    </div>
+<!-- Footer -->
+<footer class="page-footer font-small bg-secondary">
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+    <a href="/" class="text-dark" > codesville.club</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+<!-- Footer -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
